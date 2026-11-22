@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TCET Event Desk | Campus Event Operations</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#172721">
+  <link rel="icon" href="assets/TCET-Logo.png" type="image/png">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    // Restore the desk appearance before its first paint.
+    (function () {
+      const root = document.documentElement;
+      let mode, palette;
+      try {
+        mode = localStorage.getItem("tcet_theme");
+        palette = localStorage.getItem("tcet_palette");
+      } catch (_) { /* Storage may be unavailable in private browsing. */ }
+      root.dataset.palette = palette === "emerald" ? "emerald" : "indigo";
+      root.dataset.theme = mode === "dark" || mode === "light" ? mode :
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    })();
+  </script>
+</head>
+<body>
+
+  <a class="skip-link" href="#view">Skip to dashboard content</a>
+
+  <!-- ============ Sign-in ============ -->
+  <section id="login" class="login" hidden>
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="logo-tile"><img data-logo alt="TCET logo"></span>
+        <div>
+          <h1>TCET Event Desk</h1>
+          <p>Thakur College of Engineering and Technology</p>
+        </div>
+      </div>
+      <form id="loginForm" autocomplete="off">
+        <label class="field">
+          <span>Your name</span>
+          <input id="loginName" type="text" placeholder="So check-ins show who scanned them" required maxlength="40">
+        </label>
+        <label class="field">
+          <span>Team passcode</span>
+          <input id="loginPass" type="password" placeholder="Passcode" required>
+        </label>
+        <p id="loginError" class="form-error" role="alert" hidden></p>
+        <button class="btn btn-primary btn-lg" type="submit">Sign in</button>
+      </form>
+      <div class="login-tools">
+        <p class="login-foot">For event managers only.</p>
+        <button type="button" class="appearance-link" id="loginAppearance" aria-haspopup="dialog">Appearance</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ App ============ -->
+  <div id="app" hidden>
+    <aside class="rail" id="rail">
+      <div class="brand">
+        <span class="logo-tile"><img data-logo alt="TCET logo"></span>
+        <div class="brand-text"><b>TCET</b><span>Event Desk</span></div>
+      </div>
+
+      <label class="stub">
+        <span class="stub-top">Live desk event</span>
+        <select id="eventSelect" aria-label="Choose event"></select>
+        <span class="stub-meta" id="stubMeta"></span>
+      </label>
+
+      <nav class="nav" id="nav" aria-label="Main"></nav>
+
+      <div class="rail-foot">
+        <div class="who"><span class="avatar" id="whoAvatar"></span><span id="whoName"></span></div>
+        <div class="rail-actions">
+          <button class="icon-btn" id="themeBtn" title="Appearance" aria-label="Appearance" aria-haspopup="dialog"></button>
+          <button class="icon-btn" id="logoutBtn" title="Sign out" aria-label="Sign out"></button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div id="demoBanner" class="banner" hidden></div>
+      <div class="mobile-event" id="mobileEvent"></div>
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2 id="pageTitle"></h2>
+          <p id="pageSub"></p>
+        </div>
+        <div class="topbar-right">
+          <div class="event-context" id="eventContext" aria-label="Selected event" hidden></div>
+          <span class="sync" id="syncState" role="status" aria-live="polite" title="Numbers refresh automatically"><i></i><span>Live</span></span>
+          <button class="icon-btn mobile-theme" id="mobileThemeBtn" type="button" title="Appearance" aria-label="Appearance" aria-haspopup="dialog"></button>
+          <button class="btn btn-ghost btn-sm" id="refreshBtn" type="button">Refresh</button>
+        </div>
+      </header>
+      <main id="view" tabindex="-1" aria-busy="false"></main>
+    </div>
+
+    <nav class="bottom-nav" id="bottomNav" aria-label="Main"></nav>
+  </div>
+
+  <dialog id="appearanceDialog" aria-labelledby="appearanceTitle">
+    <header class="appearance-head">
+      <h2 id="appearanceTitle">Appearance</h2>
+      <form method="dialog"><button class="appearance-close" aria-label="Close appearance settings">×</button></form>
+    </header>
+    <fieldset class="appearance-group">
+      <legend>Colour palette</legend>
+      <div class="palette-options">
+        <label class="palette-option">
+          <input type="radio" name="deskPalette" value="emerald">
+          <span class="palette-art sample-emerald" aria-hidden="true"></span>
+          <span class="palette-name">Emerald</span>
+        </label>
+        <label class="palette-option">
+          <input type="radio" name="deskPalette" value="indigo">
+          <span class="palette-art sample-indigo" aria-hidden="true"></span>
+          <span class="palette-name">Lavender Indigo</span>
+        </label>
+      </div>
+    </fieldset>
+    <fieldset class="appearance-group">
+      <legend>Display mode</legend>
+      <div class="mode-options">
+        <label><input type="radio" name="deskMode" value="light"><span>Day</span></label>
+        <label><input type="radio" name="deskMode" value="dark"><span>Night</span></label>
+      </div>
+    </fieldset>
+  </dialog>
+
+  <div id="modalRoot"></div>
+  <div id="toasts" aria-live="polite"></div>
+  <div id="printReport"></div>
+
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="vendor/html5-qrcode.min.js"></script>
+  <script src="vendor/qrcode.js"></script>
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="vendor/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/operations.js"></script>
+  <script src="js/views.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/portfolio.js"></script>
+  <script src="js/appearance.js"></script>
+  <script src="js/boot.js"></script>
+</body>
+</html>
